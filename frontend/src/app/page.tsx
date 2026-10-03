@@ -106,9 +106,6 @@ export default function Home() {
           <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent mb-2">
             Foto Carnet App
           </h1>
-          <p className="text-gray-400">
-            Sube tus fotos → Se procesan automáticamente → Descarga en WebP
-          </p>
         </div>
 
         {/* Upload Card */}

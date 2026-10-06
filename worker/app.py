@@ -11,9 +11,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)  # Permitir llamadas desde el frontend
+CORS(app)
 
-# --- CONFIGURACIÓN ---
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 
@@ -23,19 +22,16 @@ MAX_DIMENSION = 1200
 MAX_ESCALA = 2.0
 WEBP_QUALITY = 95
 
-# Modelos se cargan de forma PEREZOSA (solo cuando se necesiten)
 _session_rembg = None
 _net = None
 _modelos_cargados = False
 
 def cargar_modelos():
-    """Carga los modelos solo la primera vez que se necesitan"""
     global _session_rembg, _net, _modelos_cargados
     if _modelos_cargados:
         return
 
-    print("🔄 Cargando modelos de IA (solo primera vez)...")
-    
+    print("🔄 Cargando modelos de IA...")
     from rembg import new_session
     import cv2
 
@@ -47,7 +43,7 @@ def cargar_modelos():
     _net = cv2.dnn.readNetFromCaffe(proto_path, model_path)
 
     _modelos_cargados = True
-    print("✅ Modelos cargados correctamente")
+    print("✅ Modelos cargados")
 
 def get_supabase() -> Client:
     return create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -130,8 +126,8 @@ def procesar_una_foto(img_bytes: bytes) -> bytes:
 
 def procesar_pendientes():
     sb = get_supabase()
-    
-    res = sb.table("fotos").select("*").eq("estado", "pendiente").limit(5).execute()
+    # Solo 1 foto por llamada para evitar timeout
+    res = sb.table("fotos").select("*").eq("estado", "pendiente").limit(1).execute()
     pendientes = res.data or []
 
     if not pendientes:
@@ -182,7 +178,7 @@ def home():
     return jsonify({
         "status": "ok",
         "message": "Foto Carnet Worker está vivo 🚀",
-        "version": "2.1.0",
+        "version": "2.2.0",
         "modelos_cargados": _modelos_cargados
     })
 
